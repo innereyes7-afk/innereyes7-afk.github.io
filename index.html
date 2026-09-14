@@ -414,9 +414,9 @@
       let body = "";
       if (tab === "details") {
         body = `<div class="card">
-          <label>Name</label><input id="pd-name" value="${p.name.replace(/"/g,""")}" />
+          <label>Name</label><input id="pd-name" value="${p.name.replace(/"/g,'"')}" />
           <label>Type</label><select id="pd-kind">${KINDS.map((k) => `<option value="${k.value}" ${k.value===p.kind?"selected":""}>${k.label}</option>`).join("")}</select>
-          <label>Location</label><input id="pd-loc" value="${(p.location||"").replace(/"/g,""")}" />
+          <label>Location</label><input id="pd-loc" value="${(p.location||'').replace(/"/g,'"')}" />
           <label>Notes</label><textarea id="pd-notes">${p.notes || ""}</textarea>
           ${STORE.unlocked ? `<div style="height:10px"></div><button class="btn" id="pd-save">Save details</button>` : `<p class="muted">Unlock to edit.</p>`}
         </div>`;
