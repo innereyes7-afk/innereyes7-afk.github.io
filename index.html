@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#1e4d3a" />
+  <title>Barakah Alliance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f3eee4; --fg: #1c241f; --card: #faf7f0; --muted: #5e6b63;
+      --line: #d9d0c0; --forest: #1e4d3a; --cream: #f7f3ea; --ok: #2f6f4e;
+      --warn: #9a6b2f; --danger: #9b3d35; --faint: #8b948c; --moss: #3d6b54;
+      --paper: #e7dfd0;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: var(--bg); color: var(--fg);
+      font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif; }
+    body { min-height: 100dvh; padding-bottom: calc(68px + env(safe-area-inset-bottom)); }
+    h1, h2, h3 { font-family: "Instrument Serif", ui-serif, Georgia, serif; letter-spacing: -0.03em; font-weight: 500; margin: 0; }
+    h1 { font-size: 32px; line-height: 1.15; margin: 4px 0 12px; }
+    h2 { font-size: 20px; }
+    h3 { font-size: 16px; margin-bottom: 8px; }
+    button { font: inherit; cursor: pointer; }
+    .wrap { padding: 16px 16px 28px; max-width: 1100px; margin: 0 auto; }
+    .top { display: flex; align-items: center; gap: 12px; padding: 14px 16px;
+      padding-top: max(14px, env(safe-area-inset-top)); border-bottom: 1px solid var(--line);
+      background: rgba(250,247,240,.94); position: sticky; top: 0; z-index: 5; }
+    .mark { width: 40px; height: 40px; border-radius: 10px; background: var(--forest); color: var(--cream);
+      display: grid; place-items: center; flex-shrink: 0; }
+    .mark svg { width: 22px; height: 22px; fill: var(--cream); }
+    .kicker { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); margin: 0; }
+    .card { background: var(--card); border-radius: 14px; box-shadow: 0 1px 0 rgba(28,36,31,.04), 0 12px 32px -18px rgba(28,36,31,.18), inset 0 0 0 1px var(--line); padding: 16px; margin-bottom: 12px; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+    .grid4 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .kpi { background: var(--card); border-radius: 14px; box-shadow: inset 0 0 0 1px var(--line); padding: 14px; }
+    .kpi b { display: block; font-size: 18px; font-variant-numeric: tabular-nums; margin-top: 6px; }
+    .kpi span { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+    .kpi small { display: block; margin-top: 4px; color: var(--faint); font-size: 12px; letter-spacing: 0; text-transform: none; }
+    .tabs { position: fixed; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(5, 1fr);
+      background: rgba(250,247,240,.96); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom); z-index: 6; }
+    .tabs button { background: none; border: 0; padding: 10px 4px 8px; color: var(--muted); font-size: 11px; min-height: 56px; }
+    .tabs button.on { color: var(--forest); font-weight: 600; }
+    .tabs svg { display: block; margin: 0 auto 4px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--forest);
+      color: var(--cream); border: 0; border-radius: 10px; height: 48px; padding: 0 16px; width: 100%; font-size: 15px; }
+    .btn.ghost { background: transparent; color: var(--fg); box-shadow: inset 0 0 0 1px var(--line); }
+    .btn.danger { background: var(--danger); }
+    .btn.sm { height: 36px; font-size: 13px; width: auto; padding: 0 12px; }
+    input, select, textarea { width: 100%; height: 44px; border-radius: 10px; border: 1px solid var(--line);
+      background: #fff; padding: 0 12px; font: inherit; }
+    textarea { height: 88px; padding: 10px 12px; }
+    label { display: block; font-size: 12px; color: var(--muted); margin: 10px 0 6px; }
+    .row { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+    .row:last-child { border-bottom: 0; }
+    .neg { color: var(--danger); }
+    .pos { color: var(--ok); }
+    .chip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 10px;
+      background: var(--card); box-shadow: inset 0 0 0 1px var(--line); font-size: 13px; margin: 0 6px 8px 0; border: 0; color: inherit; }
+    .chip.on { background: var(--forest); color: var(--cream); box-shadow: none; }
+    .chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin: 0 0 16px; }
+    .muted { color: var(--muted); font-size: 13px; line-height: 1.5; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+      padding: 8px 0; border-bottom: 1px solid var(--line); }
+    td { padding: 10px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+    .right { text-align: right; font-variant-numeric: tabular-nums; }
+    .warnbox { background: #efe8d9; border-radius: 12px; padding: 12px 14px; font-size: 14px; margin-bottom: 12px; line-height: 1.45; }
+    .dangerbox { background: #f3e4e1; color: var(--danger); border-radius: 12px; padding: 12px 14px; font-size: 14px; margin-bottom: 12px; }
+    .bar { height: 8px; background: #e7dfd0; border-radius: 99px; overflow: hidden; margin-top: 8px; }
+    .bar > i { display: block; height: 100%; background: var(--forest); border-radius: 99px; }
+    .linkish { color: var(--forest); text-decoration: underline; background: none; border: 0; padding: 0; font: inherit; }
+    .lock { font-size: 12px; color: var(--muted); padding: 4px 10px; border-radius: 8px; box-shadow: inset 0 0 0 1px var(--line); }
+    .lock.on { color: var(--ok); background: rgba(47,111,78,.1); box-shadow: none; }
+    .seg { display: flex; gap: 6px; overflow-x: auto; margin: 8px 0 14px; }
+    .seg button { flex: 1; min-width: 72px; height: 36px; border-radius: 10px; border: 0; background: var(--card);
+      box-shadow: inset 0 0 0 1px var(--line); font-size: 12px; }
+    .seg button.on { background: var(--forest); color: var(--cream); box-shadow: none; }
+    .formula { background: #efe8d9; border-radius: 12px; padding: 12px 14px; font-size: 13px; margin: 12px 0; font-variant-numeric: tabular-nums; }
+    .sidebar { display: none; }
+    .side-link { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; color: var(--muted); text-decoration: none; border: 0; background: none; width: 100%; text-align: left; font-size: 14px; }
+    .side-link.on { background: var(--forest); color: var(--cream); }
+    .side-link:hover:not(.on) { background: #efe8d9; color: var(--fg); }
+    .floor { border-radius: 8px; padding: 8px 12px; font-size: 12px; }
+    .floor.ok { background: rgba(47,111,78,.1); color: var(--ok); }
+    .floor.bad { background: rgba(155,61,53,.1); color: var(--danger); }
+    .progress { height: 6px; background: var(--paper); border-radius: 99px; overflow: hidden; }
+    .progress > i { display: block; height: 100%; background: var(--forest); }
+    @media (min-width: 768px) {
+      body { padding-bottom: 0; }
+      .top, .tabs { display: none; }
+      .sidebar { display: flex; flex-direction: column; position: fixed; inset: 0 auto 0 0; width: 240px;
+        background: rgba(250,247,240,.92); border-right: 1px solid var(--line); padding: 20px; z-index: 8; }
+      .wrap { margin-left: 240px; padding: 40px 32px 64px; }
+      .grid4 { grid-template-columns: repeat(4, 1fr); }
+      h1 { font-size: 36px; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar" id="sidebar"></aside>
+  <header class="top">
+    <div class="mark"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 10 L36.4 24.2 H51.2 L39.4 32.9 L43.8 47.2 L32 38.6 L20.2 47.2 L24.6 32.9 L12.8 24.2 H27.6 Z"/></svg></div>
+    <div>
+      <div style="font-family:'Instrument Serif',Georgia,serif;font-size:18px;line-height:1">Barakah</div>
+      <div class="kicker">Alliance</div>
+    </div>
+    <div id="lockPill" class="lock" style="margin-left:auto"></div>
+  </header>
+  <main class="wrap" id="root"></main>
+  <nav class="tabs" id="tabs"></nav>
+  <script src="core.js"></script>
+  <script>
+    const KEY = "barakah-books-v1";
+    const STORE = { unlocked: false, tab: "expenses" };
+    const icon = (d) => `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${d}</svg>`;
+    const KINDS = (BA.PROJECT_KINDS || [
+      { value: "plot", label: "Buying a plot" },
+      { value: "home", label: "Buying a house" },
+      { value: "shop", label: "Buying a shop" },
+      { value: "gold", label: "Gold" },
+      { value: "vehicle", label: "Vehicle" },
+      { value: "other", label: "Other deal" },
+    ]);
+    const EXPS = BA.EXPENSE_CATEGORIES || ["Registry / mutation","Development","Tax / duties","Legal / lawyer","Labour","Utilities","Broker / commission","Other"];
+
+    function load() {
+      try {
+        const raw = localStorage.getItem(KEY);
+        if (raw) {
+          const d = JSON.parse(raw);
+          if (d.transactions && d.settings) {
+            if (!d.projects) d.projects = [];
+            return d;
+          }
+        }
+      } catch (e) {}
+      return seedBooks();
+    }
+    function seedBooks() {
+      return {
+        transactions: BA.SEED_TRANSACTIONS.map((t) => ({ ...t })),
+        settings: { ...BA.DEFAULT_SETTINGS },
+        notes: {},
+        projects: [],
+        password: BA.DEFAULT_KEEPER_PASSWORD,
+      };
+    }
+    function save() { localStorage.setItem(KEY, JSON.stringify(books)); }
+    let books = load();
+    let route = { name: "home" };
+
+    function snap() { return BA.computeSnapshot(books.transactions, books.settings, books.projects || []); }
+    function sar(n, u) { return Number(n).toLocaleString("en-US", { maximumFractionDigits: 2 }) + (u === false ? "" : " SAR"); }
+    function pkr(n, u) { return Math.round(n).toLocaleString("en-US") + (u === false ? "" : " PKR"); }
+    function cls(n) { return n < -0.5 ? "neg" : n > 0.5 ? "pos" : ""; }
+    function today() { return new Date().toISOString().slice(0, 10); }
+    function uid(prefix) { return (prefix || "tx") + "-" + Math.random().toString(36).slice(2, 8) + Date.now().toString(36).slice(-4); }
+    function fmtDate(iso) {
+      if (!iso) return "—";
+      const [y, m, d] = iso.split("-").map(Number);
+      return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+    }
+    function kindLabel(k) { return (BA.kindLabel && BA.kindLabel(k)) || (KINDS.find((x) => x.value === k) || {}).label || k; }
+
+    window.barakahBack = function () {
+      if (route.name === "member") { go("partners"); return true; }
+      if (route.name === "project") { go("projects"); return true; }
+      if (["profit", "accounts", "constitution", "share"].includes(route.name)) { go("more"); return true; }
+      if (route.name !== "home") { go("home"); return true; }
+      return false;
+    };
+
+    function go(name, id) { route = { name, id }; render(); window.scrollTo(0, 0); }
+
+    function needUnlock() {
+      if (STORE.unlocked) return false;
+      alert("Unlock as Muhammad Ishtiaq first. Open More → Unlock.");
+      go("more");
+      return true;
+    }
+
+    function render() {
+      const pill = document.getElementById("lockPill");
+      pill.textContent = STORE.unlocked ? "Unlocked" : "Locked";
+      pill.classList.toggle("on", STORE.unlocked);
+      const nav = [
+        ["home", "Overview"],
+        ["partners", "Partners"],
+        ["projects", "Projects"],
+        ["ledger", "Ledger"],
+        ["record", "Record"],
+        ["accounts", "Accounts"],
+        ["profit", "Profit & loss"],
+        ["share", "Share books"],
+        ["constitution", "Constitution"],
+        ["more", "Settings"],
+      ];
+      const s = snap();
+      const floor = books.settings.emergencyTargetSar;
+      const em = s.pools.emergencySar;
+      const floorOk = em >= floor;
+      const sideOn = (id) => {
+        if (id === "partners" && route.name === "member") return true;
+        if (id === "projects" && route.name === "project") return true;
+        return route.name === id;
+      };
+      document.getElementById("sidebar").innerHTML = `
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="mark"><svg viewBox="0 0 64 64"><path d="M32 10 L36.4 24.2 H51.2 L39.4 32.9 L43.8 47.2 L32 38.6 L20.2 47.2 L24.6 32.9 L12.8 24.2 H27.6 Z"/></svg></div>
+          <div>
+            <div style="font-family:'Instrument Serif',Georgia,serif;font-size:18px;line-height:1">Barakah</div>
+            <div class="kicker">Alliance</div>
+          </div>
+        </div>
+        <nav style="margin-top:28px;flex:1;display:flex;flex-direction:column;gap:2px">
+          ${nav.map(([id, label]) => `<button class="side-link ${sideOn(id) ? "on" : ""}" data-go="${id}">${label}</button>`).join("")}
+        </nav>
+        <div class="lock ${STORE.unlocked ? "on" : ""}" style="margin-bottom:8px">${STORE.unlocked ? "Unlocked" : "Locked"}</div>
+        <div class="floor ${floorOk ? "ok" : "bad"}">
+          <div class="kicker">Emergency floor</div>
+          <div style="margin-top:4px;font-weight:600">${floorOk ? "Held" : sar(Math.max(0, floor - em)) + " short"}</div>
+        </div>
+        <p class="muted" style="margin-top:16px;font-size:11px">Halal partnership ledger · KSA / Pakistan · 2026</p>
+      `;
+      document.getElementById("tabs").innerHTML = [
+        ["home", "Home", '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>'],
+        ["partners", "Partners", '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'],
+        ["projects", "Projects", '<path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"/><path d="M3 9l2-5h14l2 5"/>'],
+        ["record", "Record", '<path d="M12 5v14 M5 12h14"/>'],
+        ["more", "More", '<path d="M3 12h18 M3 6h18 M3 18h18"/>'],
+      ].map(([id, label, d]) => {
+        const on = route.name === id
+          || (id === "partners" && route.name === "member")
+          || (id === "projects" && route.name === "project")
+          || (id === "more" && ["profit","accounts","constitution","share","ledger"].includes(route.name));
+        return `<button class="${on ? "on" : ""}" data-go="${id}">${icon(d)}${label}</button>`;
+      }).join("");
+      document.querySelectorAll("#tabs button").forEach((b) => b.onclick = () => go(b.dataset.go));
+      const root = document.getElementById("root");
+      const views = {
+        home: viewHome, partners: viewPartners, member: () => viewMember(s, route.id),
+        record: viewRecord, ledger: viewLedger, more: viewMore, profit: viewProfit,
+        accounts: viewAccounts, constitution: viewConstitution, projects: viewProjects,
+        project: () => viewProject(s, route.id), share: viewShare,
+      };
+      root.innerHTML = (views[route.name] || viewHome)(s);
+      bind();
+    }
+
+    function partnerCard(m, r, compact) {
+      return `<div class="card" data-member="${m.id}" style="cursor:pointer">
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div class="mark" style="width:36px;height:36px;font-size:13px">${m.initials}</div>
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;justify-content:space-between;gap:8px"><strong>${m.name}</strong><span class="muted">${m.short}</span></div>
+            <div class="muted">${m.title}</div>
+            ${compact ? "" : `<div class="grid2" style="margin-top:12px;font-size:14px">
+              <div>Deposited<br><b>${sar(r.lifetimeContributedSar)}</b></div>
+              <div>Investment<br><b>${sar(r.investmentSar)}</b></div>
+              <div>Remaining<br><b>${m.investmentTargetSar ? sar(Math.max(0, r.investmentRemainingSar)) : "—"}</b></div>
+              <div>His P&L<br><b class="${cls(r.allocatedPkr)}">${pkr(r.allocatedPkr)}</b></div>
+              <div>From projects<br><b class="${cls(r.projectProfitPkr || 0)}">${pkr(r.projectProfitPkr || 0)}</b></div>
+            </div>`}
+          </div>
+        </div>
+      </div>`;
+    }
+
+    function viewHome(s) {
+      const cap = s.totalInvestmentSar;
+      const floor = books.settings.emergencyTargetSar;
+      const em = s.pools.emergencySar;
+      const recent = [...books.transactions].sort((a,b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id)).slice(0, 6);
+      const open = (books.projects || []).filter((p) => (s.projects[p.id] || {}).realized !== true);
+      const ksa = BA.MEMBERS.filter((m) => m.role === "ksa");
+      return `
+        <p class="kicker">Collective summary</p>
+        <h1>The house is in session.</h1>
+        <p class="muted">Five KSA partners, one Pakistan operator, and a 1% sadaqah line. Every riyal and rupee is on this ledger.</p>
+        ${em < floor ? `<div class="dangerbox"><b>Emergency fund is empty.</b> Constitution requires ${sar(floor)} at all times. Currently ${sar(em)}.</div>` : ""}
+        <div class="chips">
+          ${BA.MEMBERS.map((m) => `<button class="chip" data-member="${m.id}"><span style="font-family:'Instrument Serif',serif">${m.initials}</span> ${m.short}</button>`).join("")}
+        </div>
+        <div class="grid4">
+          <div class="kpi"><span>Pakistan cash</span><b>${pkr(s.banks.pkPkr)}</b><small>Held with Muhammad Ishtiaq, MCB</small></div>
+          <div class="kpi"><span>KSA cash</span><b>${sar(s.banks.ksaSar)}</b><small>Currently fully remitted</small></div>
+          <div class="kpi"><span>Investment capital</span><b>${sar(cap)}</b><small>Target ${sar(ksa.length * books.settings.investmentTargetSar)}</small></div>
+          <div class="kpi"><span>Net profit / loss</span><b class="${cls(s.netProfitPkr)}">${pkr(s.netProfitPkr)}</b><small>${pkr(s.revenuePkr)} revenue − ${pkr(s.expensesPkr)} expenses</small></div>
+        </div>
+        <div class="card">
+          <div class="row"><span>Emergency floor</span><b>${sar(em)} / ${sar(floor)}</b></div>
+          <div class="bar"><i style="width:${Math.min(100, (em / floor) * 100)}%"></i></div>
+        </div>
+        <div class="card" data-go="projects" style="cursor:pointer">
+          <h3>Projects</h3>
+          <p class="muted">${(books.projects||[]).length ? `${open.length} open · tap to open details` : "No project yet. Open a plot or a house."}</p>
+        </div>
+        <div class="card">
+          <h3>Partner sheets</h3>
+          ${ksa.map((m) => {
+            const r = s.members[m.id];
+            const pct = m.investmentTargetSar ? Math.min(100, (r.investmentSar / m.investmentTargetSar) * 100) : 0;
+            return `<div data-member="${m.id}" style="cursor:pointer;padding:10px 0;border-bottom:1px solid var(--line)">
+              <div class="row" style="border:0;padding:0"><span>${m.short}</span><span class="muted">${sar(r.investmentSar)} / ${sar(m.investmentTargetSar)}</span></div>
+              <div class="progress"><i style="width:${pct}%"></i></div>
+              <div class="row" style="border:0;padding:6px 0 0;font-size:12px"><span class="muted">Remaining ${sar(Math.max(0, r.investmentRemainingSar))}</span><span class="${cls(r.allocatedPkr)}">P&L ${pkr(r.allocatedPkr)}</span></div>
+            </div>`;
+          }).join("")}
+        </div>
+        <h3 style="margin:16px 0 8px">Recent movements</h3>
+        <div class="card">${recent.map((t) => {
+          const who = t.memberId && BA.MEMBER_MAP[t.memberId] ? BA.MEMBER_MAP[t.memberId].short : "House";
+          return `<div class="row"><div><b>${t.description}</b><div class="muted">${fmtDate(t.date)} · ${BA.typeLabel(t.type)} · ${who}</div></div>
+            <div class="right ${cls(t.amountSar)}">${t.amountSar ? sar(t.amountSar) : pkr(t.amountPkr)}</div></div>`;
+        }).join("")}</div>`;
+    }
+
+    function viewPartners(s) {
+      return `<p class="kicker">Partners</p><h1>Open a name.</h1>
+        <p class="muted">Each partner has his own passbook: deposits, remaining capital, and the profit he has generated.</p>
+        ${BA.MEMBERS.map((m) => partnerCard(m, s.members[m.id], false)).join("")}`;
+    }
+
+    function viewMember(s, id) {
+      const m = BA.MEMBER_MAP[id];
+      if (!m) return "<p>Unknown partner.</p>";
+      const r = s.members[id];
+      const acc = BA.buildMemberAccount(id, books.transactions, books.settings.defaultRate, {
+        allocatedPkr: r.allocatedPkr,
+        investmentTargetSar: m.investmentTargetSar,
+        emergencyTargetSar: m.emergencyTargetSar,
+      });
+      const invPct = m.investmentTargetSar ? Math.min(100, (r.investmentSar / m.investmentTargetSar) * 100) : 100;
+      const projects = books.projects || [];
+      return `<p class="kicker">Personal sheet</p><h1>${m.name}</h1>
+        <div>${BA.MEMBERS.map((x) => `<button class="chip ${x.id===id?"on":""}" data-member="${x.id}">${x.short}</button>`).join("")}</div>
+        <div class="grid2">
+          <div class="kpi"><span>Cash he deposited</span><b>${sar(r.lifetimeContributedSar)}</b></div>
+          <div class="kpi"><span>In investment</span><b>${sar(r.investmentSar)}</b></div>
+          <div class="kpi"><span>Remaining capital</span><b>${m.investmentTargetSar ? sar(Math.max(0, r.investmentRemainingSar)) : "—"}</b></div>
+          <div class="kpi"><span>His P&L</span><b class="${cls(r.allocatedPkr)}">${pkr(r.allocatedPkr)}</b></div>
+          <div class="kpi"><span>From projects</span><b class="${cls(r.projectProfitPkr || 0)}">${pkr(r.projectProfitPkr || 0)}</b></div>
+          <div class="kpi"><span>Moved to investment</span><b>${pkr(r.capitalizedProfitPkr)}</b></div>
+        </div>
+        ${m.investmentTargetSar ? `<div class="card"><div class="row"><span>Investment target</span><b>${sar(r.investmentSar)} / ${sar(m.investmentTargetSar)}</b></div>
+          <div class="bar"><i style="width:${invPct}%"></i></div></div>` : ""}
+        <div class="card"><h3>From the beginning</h3>
+          ${acc.activities.length === 0 ? "<p class='muted'>No movements yet.</p>" :
+            acc.activities.map((a) => `<div class="row"><div><b>${a.description}</b><div class="muted">${fmtDate(a.date)} · ${BA.typeLabel(a.type)}</div></div>
+              <div class="right ${cls(a.amountSar)}">${a.primary === "PKR" ? pkr(a.amountPkr) : sar(a.amountSar)}</div></div>`).join("")}
+        </div>
+        <div class="card"><h3>Profit he has generated</h3>
+          <div class="row"><span>Alliance net</span><b class="${cls(s.netProfitPkr)}">${pkr(s.netProfitPkr)}</b></div>
+          <div class="row"><span>His share</span><b>${s.netProfitPkr >= 0 ? m.profitShare : m.lossShare}%</b></div>
+          <div class="row"><span>Allocated</span><b class="${cls(r.allocatedPkr)}">${pkr(r.allocatedPkr)}</b></div>
+          <div class="row"><span>From sold projects</span><b class="${cls(r.projectProfitPkr || 0)}">${pkr(r.projectProfitPkr || 0)}</b></div>
+          <div class="row"><span>Still available</span><b>${pkr(r.availableProfitPkr)}</b></div>
+          ${STORE.unlocked && r.availableProfitPkr > 0.5 ? `<label>Move to his investment (PKR)</label>
+            <input id="move-amt" inputmode="decimal" placeholder="${Math.round(r.availableProfitPkr)}" />
+            <div style="height:10px"></div>
+            <button class="btn" id="move-profit">Move to investment</button>` : ""}
+        </div>
+        ${projects.length ? `<div class="card"><h3>His share of each project</h3>
+          ${projects.map((p) => {
+            const rec = s.projects[p.id] || {};
+            const share = rec.realized ? ((rec.profitPkr >= 0 ? m.profitShare : m.lossShare) * rec.profitPkr / 100) : 0;
+            return `<div class="row" data-project="${p.id}" style="cursor:pointer"><div><b>${p.name}</b><div class="muted">${kindLabel(p.kind)}</div></div>
+              <b class="${rec.realized ? cls(share) : ""}">${rec.realized ? pkr(share) : "Pending"}</b></div>`;
+          }).join("")}
+        </div>` : ""}`;
+    }
+
+    function viewProjects(s) {
+      const list = books.projects || [];
+      const kindOpts = KINDS.map((k) => `<option value="${k.value}">${k.label}</option>`).join("");
+      return `<p class="kicker">Projects</p><h1>Plots, houses, and deals.</h1>
+        <p class="muted">Open a project. Post purchase, every expense, then the sale. Profit = sold − purchase − expenses.</p>
+        ${STORE.unlocked ? `<div class="card">
+          <label>Project name</label><input id="np-name" placeholder="e.g. DHA plot 12" />
+          <label>Type</label><select id="np-kind">${kindOpts}</select>
+          <label>Location</label><input id="np-loc" placeholder="City, society (optional)" />
+          <div style="height:12px"></div>
+          <button class="btn" id="np-open">Open project</button>
+        </div>` : `<div class="warnbox">Unlock as Ishtiaq to open a project. Partners may still tap an existing one.</div>`}
+        ${list.length === 0 ? `<p class="muted">No projects yet.</p>` : list.map((p) => {
+          const rec = s.projects[p.id] || {};
+          return `<div class="card" data-project="${p.id}" style="cursor:pointer">
+            <div class="row"><div><b>${p.name}</b><div class="muted">${kindLabel(p.kind)}${p.location ? " · " + p.location : ""}</div></div>
+              <b>${rec.realized ? "Sold" : "Open"}</b></div>
+            <div class="grid2" style="margin-top:8px;font-size:13px">
+              <div>Purchased<br><b>${pkr(rec.purchasePkr || 0)}</b></div>
+              <div>Expenses<br><b>${pkr(rec.expensesPkr || 0)}</b></div>
+              <div>Sold<br><b>${pkr(rec.salePkr || 0)}</b></div>
+              <div>Profit<br><b class="${rec.realized ? cls(rec.profitPkr) : ""}">${rec.realized ? pkr(rec.profitPkr) : "Pending"}</b></div>
+            </div>
+          </div>`;
+        }).join("")}`;
+    }
+
+    function viewProject(s, id) {
+      const p = (books.projects || []).find((x) => x.id === id);
+      if (!p) return "<p>Unknown project.</p>";
+      const rec = s.projects[id] || { purchasePkr: 0, expensesPkr: 0, salePkr: 0, profitPkr: 0, realized: false };
+      const txs = books.transactions.filter((t) => t.projectId === id);
+      const purchases = txs.filter((t) => t.type === "project_purchase");
+      const expenses = txs.filter((t) => t.type === "project_expense");
+      const sales = txs.filter((t) => t.type === "project_sale");
+      const tab = STORE.tab;
+      const cost = (rec.purchasePkr || 0) + (rec.expensesPkr || 0);
+      const segs = [["details","Details"],["purchase","Purchase"],["expenses","Expenses"],["sold","Sold"],["profit","Profit"]];
+      let body = "";
+      if (tab === "details") {
+        body = `<div class="card">
+          <label>Name</label><input id="pd-name" value="${p.name.replace(/"/g,""")}" />
+          <label>Type</label><select id="pd-kind">${KINDS.map((k) => `<option value="${k.value}" ${k.value===p.kind?"selected":""}>${k.label}</option>`).join("")}</select>
+          <label>Location</label><input id="pd-loc" value="${(p.location||"").replace(/"/g,""")}" />
+          <label>Notes</label><textarea id="pd-notes">${p.notes || ""}</textarea>
+          ${STORE.unlocked ? `<div style="height:10px"></div><button class="btn" id="pd-save">Save details</button>` : `<p class="muted">Unlock to edit.</p>`}
+        </div>`;
+      } else if (tab === "purchase") {
+        body = `<div class="card"><h3>Purchase price</h3>
+          ${purchases.length === 0 ? "<p class='muted'>No purchase posted.</p>" : purchases.map((t) => `<div class="row"><div><b>${t.description}</b><div class="muted">${fmtDate(t.date)}</div>
+            ${STORE.unlocked ? `<button class="linkish" data-del="${t.id}">Remove</button>` : ""}</div><b>${pkr(Math.abs(t.amountPkr))}</b></div>`).join("")}
+          ${STORE.unlocked ? `<label>Date</label><input id="pu-date" type="date" value="${today()}" />
+            <label>What we bought</label><input id="pu-desc" placeholder="DHA Phase 8 plot 12" />
+            <label>Price PKR</label><input id="pu-amt" inputmode="decimal" />
+            <div style="height:10px"></div><button class="btn" id="pu-add">Post purchase</button>` : ""}
+        </div>`;
+      } else if (tab === "expenses") {
+        body = `<div class="card"><h3>Every expense</h3>
+          ${expenses.length === 0 ? "<p class='muted'>No expenses yet.</p>" : `<table><thead><tr><th>Date</th><th>What</th><th class="right">PKR</th></tr></thead><tbody>
+            ${expenses.map((t) => `<tr><td>${fmtDate(t.date)}</td><td><b>${t.description}</b><div class="muted">${t.category || ""}</div>
+              ${STORE.unlocked ? `<button class="linkish" data-del="${t.id}">Remove</button>` : ""}</td>
+              <td class="right">${pkr(Math.abs(t.amountPkr), false)}</td></tr>`).join("")}
+            <tr><td colspan="2">Total</td><td class="right"><b>${pkr(rec.expensesPkr || 0, false)}</b></td></tr>
+          </tbody></table>`}
+          ${STORE.unlocked ? `<h3 style="margin-top:16px">Add an expense</h3>
+            <label>Date</label><input id="ex-date" type="date" value="${today()}" />
+            <label>Expense type</label><select id="ex-cat">${EXPS.map((c) => `<option>${c}</option>`).join("")}</select>
+            <label>What was paid</label><input id="ex-desc" placeholder="Registry fee, development…" />
+            <label>Amount PKR</label><input id="ex-amt" inputmode="decimal" />
+            <div style="height:10px"></div><button class="btn" id="ex-add">Add this expense</button>` : `<p class="muted">Unlock as Ishtiaq to post expenses.</p>`}
+        </div>`;
+      } else if (tab === "sold") {
+        const preview = rec.salePkr || 0;
+        const profit = preview - cost;
+        body = `<div class="card"><h3>Sold</h3>
+          <p class="muted">Enter what the buyer paid. Purchase and expenses are subtracted. The remainder is profit.</p>
+          ${sales.map((t) => `<div class="row"><div><b>${t.description}</b><div class="muted">${fmtDate(t.date)}</div>
+            ${STORE.unlocked ? `<button class="linkish" data-del="${t.id}">Remove</button>` : ""}</div><b>${pkr(Math.abs(t.amountPkr))}</b></div>`).join("")}
+          <div class="formula">Sold ${pkr(preview)} − purchase ${pkr(rec.purchasePkr||0)} − expenses ${pkr(rec.expensesPkr||0)} = <b class="${cls(profit)}">${rec.realized || preview ? pkr(profit) : "pending"}</b></div>
+          ${STORE.unlocked && !rec.realized ? `<label>Sale date</label><input id="sl-date" type="date" value="${today()}" />
+            <label>Sold for (PKR)</label><input id="sl-amt" inputmode="decimal" />
+            <label>Sold to</label><input id="sl-desc" placeholder="Buyer name, optional" />
+            <div style="height:10px"></div><button class="btn" id="sl-add">Mark sold and post the sale</button>` :
+            rec.realized ? `<p class="muted">This project is sold. Open Profit to move each partner’s share into investment.</p>` : ""}
+        </div>`;
+      } else {
+        body = `<div class="card"><h3>Each partner’s profit</h3>
+          ${BA.MEMBERS.map((m) => {
+            const share = rec.profitPkr >= 0 ? m.profitShare : m.lossShare;
+            const part = rec.realized ? (rec.profitPkr * share) / 100 : 0;
+            const mem = s.members[m.id];
+            return `<div class="row"><div><b>${m.short}</b><div class="muted">${share}%</div></div>
+              <div class="right"><b class="${rec.realized ? cls(part) : ""}">${rec.realized ? pkr(part) : "After sale"}</b>
+              ${STORE.unlocked && rec.realized && mem.availableProfitPkr > 0.5 ? `<div><button class="btn sm" data-move="${m.id}" data-part="${part}">Move to investment</button></div>` : ""}</div></div>`;
+          }).join("")}
+          ${STORE.unlocked && rec.realized ? `<div style="height:10px"></div><button class="btn" id="move-all">Move everyone’s share into investment</button>` : ""}
+        </div>`;
+      }
+      return `<p class="kicker">Project details</p><h1>${p.name}</h1>
+        <p class="muted">${kindLabel(p.kind)}${p.location ? " · " + p.location : ""} · ${rec.realized ? "Sold" : "Open"}</p>
+        <div class="grid2">
+          <div class="kpi"><span>Purchase</span><b>${pkr(rec.purchasePkr || 0)}</b></div>
+          <div class="kpi"><span>Expenses</span><b>${pkr(rec.expensesPkr || 0)}</b></div>
+          <div class="kpi"><span>Sold for</span><b>${pkr(rec.salePkr || 0)}</b></div>
+          <div class="kpi"><span>Profit</span><b class="${rec.realized ? cls(rec.profitPkr) : ""}">${rec.realized ? pkr(rec.profitPkr) : "Pending"}</b></div>
+        </div>
+        <div class="seg">${segs.map(([k,l]) => `<button class="${tab===k?"on":""}" data-tab="${k}">${l}</button>`).join("")}</div>
+        ${body}`;
+    }
+
+    function viewRecord() {
+      const opts = BA.MEMBERS.map((m) => `<option value="${m.id}">${m.name}</option>`).join("");
+      const prj = (books.projects || []).map((p) => `<option value="${p.id}">${p.name}</option>`).join("");
+      return `<p class="kicker">Record</p><h1>Post a movement.</h1>
+        ${STORE.unlocked ? "" : `<div class="warnbox">Locked. Unlock as Ishtiaq under More, then come back.</div>`}
+        <div class="card">
+          <label>Date</label><input id="f-date" type="date" value="${today()}" />
+          <label>Type</label>
+          <select id="f-type">
+            <option value="contribution">Contribution</option>
+            <option value="expense">Expense</option>
+            <option value="revenue">Revenue</option>
+            <option value="fx_transfer">KSA → Pakistan</option>
+            <option value="fund_transfer">Fund transfer</option>
+            <option value="withdraw">Withdrawal</option>
+            <option value="loan">Qard Hasan (loan)</option>
+            <option value="repay">Loan repaid</option>
+            <option value="project_purchase">Project purchase</option>
+            <option value="project_expense">Project expense</option>
+            <option value="project_sale">Project sale</option>
+            <option value="profit_to_capital">Profit → investment</option>
+          </select>
+          <label>Partner</label><select id="f-member"><option value="">House (no one)</option>${opts}</select>
+          <label>Project</label><select id="f-project"><option value="">None</option>${prj}</select>
+          <label>Fund</label>
+          <select id="f-fund"><option value="investment">Investment</option><option value="emergency">Emergency</option><option value="operating">Operating</option></select>
+          <label>Amount SAR</label><input id="f-sar" inputmode="decimal" placeholder="0" />
+          <label>Amount PKR</label><input id="f-pkr" inputmode="decimal" placeholder="0" />
+          <label>What happened</label><input id="f-desc" placeholder="Short description" />
+          <div style="height:14px"></div>
+          <button class="btn" id="f-save">Save on this phone</button>
+        </div>
+        <p class="muted">For a plot or a house, it is clearer to open Projects and post there.</p>`;
+    }
+
+    function viewLedger() {
+      const rows = [...books.transactions].sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
+      return `<p class="kicker">Master sheet</p><h1>Every movement.</h1>
+        <p class="muted">${rows.length} lines · rate 1 SAR = ${books.settings.defaultRate} PKR</p>
+        <div class="card" style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Date</th><th>Activity</th><th class="right">SAR</th><th class="right">PKR</th>${STORE.unlocked ? "<th></th>" : ""}</tr></thead>
+            <tbody>
+              ${rows.map((t) => {
+                const who = t.memberId && BA.MEMBER_MAP[t.memberId] ? BA.MEMBER_MAP[t.memberId].short : "House";
+                const prj = t.projectId ? (books.projects.find((p) => p.id === t.projectId) || {}).name : "";
+                return `<tr>
+                  <td>${fmtDate(t.date)}</td>
+                  <td><b>${t.description}</b><div class="muted">${BA.typeLabel(t.type)} · ${who}${prj ? " · " + prj : ""}</div></td>
+                  <td class="right ${cls(t.amountSar)}">${sar(t.amountSar, false)}</td>
+                  <td class="right ${cls(t.amountPkr)}">${pkr(t.amountPkr, false)}</td>
+                  ${STORE.unlocked ? `<td><button class="linkish" data-del="${t.id}">Remove</button></td>` : ""}
+                </tr>`;
+              }).join("")}
+            </tbody>
+          </table>
+        </div>`;
+    }
+
+    function viewProfit(s) {
+      const list = books.projects || [];
+      return `<p class="kicker">Profit & loss</p><h1>How the house splits.</h1>
+        <div class="grid2">
+          <div class="kpi"><span>Revenue</span><b>${pkr(s.revenuePkr)}</b></div>
+          <div class="kpi"><span>Expenses</span><b>${pkr(s.expensesPkr)}</b></div>
+        </div>
+        <div class="card">
+          <div class="row"><span>Net P&L</span><b class="${cls(s.netProfitPkr)}">${pkr(s.netProfitPkr)}</b></div>
+        </div>
+        ${list.length ? `<h3>Projects</h3>${list.map((p) => {
+          const rec = s.projects[p.id] || {};
+          return `<div class="card" data-project="${p.id}" style="cursor:pointer">
+            <div class="row"><div><b>${p.name}</b><div class="muted">${kindLabel(p.kind)}</div></div>
+              <b class="${rec.realized ? cls(rec.profitPkr) : ""}">${rec.realized ? pkr(rec.profitPkr) : "Pending"}</b></div>
+          </div>`;
+        }).join("")}` : ""}
+        ${BA.MEMBERS.map((m) => {
+          const r = s.members[m.id];
+          return `<div class="card" data-member="${m.id}" style="cursor:pointer">
+            <div class="row"><span><b>${m.name}</b><div class="muted">${s.netProfitPkr >= 0 ? m.profitShare : m.lossShare}% · from projects ${pkr(r.projectProfitPkr || 0)}</div></span>
+            <b class="${cls(r.allocatedPkr)}">${pkr(r.allocatedPkr)}</b></div>
+          </div>`;
+        }).join("")}`;
+    }
+
+    function viewAccounts(s) {
+      return `<p class="kicker">Accounts</p><h1>Where the cash sits.</h1>
+        <div class="grid2">
+          <div class="kpi"><span>KSA cash</span><b>${sar(s.banks.ksaSar)}</b></div>
+          <div class="kpi"><span>Pakistan cash</span><b>${pkr(s.banks.pkPkr)}</b></div>
+          <div class="kpi"><span>Investment pool</span><b>${sar(s.pools.investmentSar)}</b></div>
+          <div class="kpi"><span>Emergency pool</span><b>${sar(s.pools.emergencySar)}</b></div>
+        </div>
+        <div class="card">
+          <div class="row"><span>Cash in SAR terms</span><b>${sar(s.cashSarEquivalent)}</b></div>
+          <div class="row"><span>Rate</span><b>1 SAR = ${books.settings.defaultRate} PKR</b></div>
+        </div>`;
+    }
+
+    function viewConstitution() {
+      const arts = BA.CONSTITUTION || [];
+      return `<p class="kicker">Constitution</p><h1>House rules.</h1>
+        ${arts.map((a) => `<div class="card"><h3>${a.number}. ${a.title}</h3>
+          ${a.body.map((p) => `<p class="muted" style="margin:8px 0 0">${p}</p>`).join("")}
+        </div>`).join("")}`;
+    }
+
+    function viewShare() {
+      return `<p class="kicker">Share with partners</p><h1>How the other phones see the same numbers.</h1>
+        <div class="card">
+          <h3>This phone keeps its own copy</h3>
+          <p class="muted">The Android app does not talk to other phones by itself. After you post, send the books file. Partners import it. Then their numbers match yours.</p>
+          <button class="btn" id="do-share">Send books to partners</button>
+          <div style="height:10px"></div>
+          <button class="btn ghost" id="do-export">Download books file</button>
+        </div>
+        <div class="card">
+          <h3>Import a file they sent</h3>
+          <p class="muted">Unlock as Ishtiaq, pick the file from WhatsApp, and this phone replaces its books with that file.</p>
+          <input id="do-import" type="file" accept="application/json,.json" />
+        </div>
+        <div class="card">
+          <h3>Excel on Google Drive</h3>
+          <p class="muted">If you use the Excel sheet on Google Drive, that is a separate live copy. The phone app does not update Drive by itself.</p>
+        </div>`;
+    }
+
+    function viewMore() {
+      return `<p class="kicker">More</p><h1>Keeper & house rules.</h1>
+        <div class="card">
+          <h3>Unlock as Ishtiaq</h3>
+          <p class="muted">${STORE.unlocked ? "The books are open on this phone." : "Partners may read. Posting stays locked until you unlock."}</p>
+          ${STORE.unlocked
+            ? `<button class="btn ghost" id="do-lock">Lock the books</button>`
+            : `<label>Password</label><input id="pw" type="password" autocomplete="off" />
+               <div style="height:10px"></div><button class="btn" id="do-unlock">Unlock</button>`}
+        </div>
+        <div class="card" data-go="projects" style="cursor:pointer"><h3>Projects</h3><p class="muted">Plots, houses, expenses, sold, profit.</p></div>
+        <div class="card" data-go="share" style="cursor:pointer"><h3>Share books</h3><p class="muted">Send this phone’s books to the partners.</p></div>
+        <div class="card" data-go="profit" style="cursor:pointer"><h3>Profit & loss</h3><p class="muted">Shares for every partner.</p></div>
+        <div class="card" data-go="ledger" style="cursor:pointer"><h3>Ledger</h3><p class="muted">Every movement.</p></div>
+        <div class="card" data-go="accounts" style="cursor:pointer"><h3>Accounts</h3><p class="muted">KSA cash, Pakistan cash, pools.</p></div>
+        <div class="card" data-go="constitution" style="cursor:pointer"><h3>Constitution</h3><p class="muted">The written house rules.</p></div>
+        <div class="card">
+          <h3>On this phone</h3>
+          <p class="muted">Barakah Alliance 1.1. The ledger is saved here. It still opens if the old website dies.</p>
+          <p class="muted">Rate: 1 SAR = ${books.settings.defaultRate} PKR</p>
+          <button class="btn ghost" id="do-reset">Reset to original 2026 books</button>
+        </div>`;
+    }
+
+    function payload() {
+      return JSON.stringify({
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        transactions: books.transactions,
+        projects: books.projects,
+        settings: books.settings,
+        notes: books.notes,
+      });
+    }
+
+    function postProjectTx(type, date, desc, pkrAmt, category, projectId, outflow) {
+      const rate = books.settings.defaultRate;
+      const signed = Math.abs(pkrAmt) * (outflow ? -1 : 1);
+      books.transactions.push({
+        id: uid("tx"),
+        date: date || today(),
+        type,
+        memberId: null,
+        description: desc,
+        fund: "investment",
+        amountSar: signed / rate,
+        amountPkr: signed,
+        rate,
+        bank: "pk",
+        bankHolderId: "ishtiaq",
+        category: category || "",
+        projectId,
+        createdAt: new Date().toISOString(),
+      });
+      save();
+    }
+
+    function moveProfit(memberId, amountPkr, projectId, label) {
+      const s = snap();
+      const mem = s.members[memberId];
+      const pkrAmt = Math.min(Math.abs(amountPkr), mem.availableProfitPkr);
+      if (pkrAmt <= 0.5) { alert("No available profit left on this name."); return false; }
+      const m = BA.MEMBER_MAP[memberId];
+      const rate = books.settings.defaultRate;
+      books.transactions.push({
+        id: uid("tx"),
+        date: today(),
+        type: "profit_to_capital",
+        memberId,
+        description: `Moved ${Math.round(pkrAmt).toLocaleString()} PKR of ${m.short}'s profit${label ? " from " + label : ""} into his investment`,
+        fund: "investment",
+        amountSar: pkrAmt / rate,
+        amountPkr: pkrAmt,
+        rate,
+        bank: "none",
+        bankHolderId: "ishtiaq",
+        category: "Capitalise",
+        projectId: projectId || null,
+        createdAt: new Date().toISOString(),
+      });
+      save();
+      return true;
+    }
+
+    function bind() {
+      document.querySelectorAll("[data-member]").forEach((el) => {
+        el.onclick = () => go("member", el.getAttribute("data-member"));
+      });
+      document.querySelectorAll("[data-project]").forEach((el) => {
+        el.onclick = () => { STORE.tab = "expenses"; go("project", el.getAttribute("data-project")); };
+      });
+      document.querySelectorAll("[data-go]").forEach((el) => {
+        if (el.tagName === "BUTTON" && el.closest("#tabs")) return;
+        el.addEventListener("click", () => go(el.getAttribute("data-go")));
+      });
+      document.querySelectorAll("[data-tab]").forEach((el) => {
+        el.onclick = () => { STORE.tab = el.getAttribute("data-tab"); render(); };
+      });
+      document.querySelectorAll("[data-del]").forEach((el) => {
+        el.onclick = (ev) => {
+          ev.stopPropagation();
+          if (needUnlock()) return;
+          if (!confirm("Remove this line from the books on this phone?")) return;
+          books.transactions = books.transactions.filter((t) => t.id !== el.getAttribute("data-del"));
+          save(); render();
+        };
+      });
+      const unlock = document.getElementById("do-unlock");
+      if (unlock) unlock.onclick = () => {
+        const pw = document.getElementById("pw").value;
+        if (pw === books.password) { STORE.unlocked = true; render(); }
+        else alert("That password is not right.");
+      };
+      const lock = document.getElementById("do-lock");
+      if (lock) lock.onclick = () => { STORE.unlocked = false; render(); };
+      const reset = document.getElementById("do-reset");
+      if (reset) reset.onclick = () => {
+        if (needUnlock()) return;
+        if (!confirm("Replace everything on this phone with the original 2026 books?")) return;
+        const password = books.password;
+        books = seedBooks();
+        books.password = password;
+        save(); render();
+      };
+      const np = document.getElementById("np-open");
+      if (np) np.onclick = () => {
+        if (needUnlock()) return;
+        const name = document.getElementById("np-name").value.trim();
+        if (!name) { alert("Name the project."); return; }
+        const row = {
+          id: uid("prj"),
+          name,
+          kind: document.getElementById("np-kind").value,
+          location: document.getElementById("np-loc").value.trim(),
+          status: "active",
+          notes: "",
+          createdAt: new Date().toISOString(),
+        };
+        books.projects.push(row);
+        save();
+        STORE.tab = "purchase";
+        go("project", row.id);
+      };
+      const pd = document.getElementById("pd-save");
+      if (pd) pd.onclick = () => {
+        if (needUnlock()) return;
+        const p = books.projects.find((x) => x.id === route.id);
+        if (!p) return;
+        p.name = document.getElementById("pd-name").value.trim() || p.name;
+        p.kind = document.getElementById("pd-kind").value;
+        p.location = document.getElementById("pd-loc").value.trim();
+        p.notes = document.getElementById("pd-notes").value.trim();
+        save(); render();
+      };
+      const pu = document.getElementById("pu-add");
+      if (pu) pu.onclick = () => {
+        if (needUnlock()) return;
+        const desc = document.getElementById("pu-desc").value.trim();
+        const amt = Number(document.getElementById("pu-amt").value);
+        if (!desc || !amt) { alert("Description and amount required."); return; }
+        postProjectTx("project_purchase", document.getElementById("pu-date").value, desc, amt, "Purchase", route.id, true);
+        render();
+      };
+      const ex = document.getElementById("ex-add");
+      if (ex) ex.onclick = () => {
+        if (needUnlock()) return;
+        const desc = document.getElementById("ex-desc").value.trim();
+        const amt = Number(document.getElementById("ex-amt").value);
+        if (!desc || !amt) { alert("Write what the cost was, and the amount."); return; }
+        postProjectTx("project_expense", document.getElementById("ex-date").value, desc, amt, document.getElementById("ex-cat").value, route.id, true);
+        render();
+      };
+      const sl = document.getElementById("sl-add");
+      if (sl) sl.onclick = () => {
+        if (needUnlock()) return;
+        const amt = Number(document.getElementById("sl-amt").value);
+        if (!amt) { alert("Enter the sold amount."); return; }
+        const p = books.projects.find((x) => x.id === route.id);
+        const desc = document.getElementById("sl-desc").value.trim() || ("Sold " + (p ? p.name : "project"));
+        postProjectTx("project_sale", document.getElementById("sl-date").value, desc, amt, "Sale", route.id, false);
+        if (p) p.status = "sold";
+        save();
+        STORE.tab = "profit";
+        render();
+      };
+      document.querySelectorAll("[data-move]").forEach((el) => {
+        el.onclick = (ev) => {
+          ev.stopPropagation();
+          if (needUnlock()) return;
+          const p = books.projects.find((x) => x.id === route.id);
+          if (moveProfit(el.getAttribute("data-move"), Number(el.getAttribute("data-part")), route.id, p ? p.name : "")) render();
+        };
+      });
+      const moveAll = document.getElementById("move-all");
+      if (moveAll) moveAll.onclick = () => {
+        if (needUnlock()) return;
+        const s = snap();
+        const rec = s.projects[route.id];
+        const p = books.projects.find((x) => x.id === route.id);
+        let n = 0;
+        BA.MEMBERS.forEach((m) => {
+          const share = rec.profitPkr >= 0 ? m.profitShare : m.lossShare;
+          const part = rec.realized ? (rec.profitPkr * share) / 100 : 0;
+          if (moveProfit(m.id, part, route.id, p ? p.name : "")) n += 1;
+        });
+        if (n) render();
+        else alert("Nothing left to move.");
+      };
+      const moveBtn = document.getElementById("move-profit");
+      if (moveBtn) moveBtn.onclick = () => {
+        if (needUnlock()) return;
+        const amt = Number(document.getElementById("move-amt").value);
+        if (!amt) { alert("Enter how much profit to merge."); return; }
+        if (moveProfit(route.id, amt, null, "")) render();
+      };
+      const shareBtn = document.getElementById("do-share");
+      if (shareBtn) shareBtn.onclick = () => {
+        const json = payload();
+        if (window.BarakahAndroid && window.BarakahAndroid.shareBooks) {
+          window.BarakahAndroid.shareBooks(json);
+        } else {
+          downloadJson(json);
+        }
+      };
+      const exportBtn = document.getElementById("do-export");
+      if (exportBtn) exportBtn.onclick = () => downloadJson(payload());
+      const importEl = document.getElementById("do-import");
+      if (importEl) importEl.onchange = async () => {
+        if (needUnlock()) return;
+        const file = importEl.files && importEl.files[0];
+        if (!file) return;
+        try {
+          const parsed = JSON.parse(await file.text());
+          if (!Array.isArray(parsed.transactions) || !Array.isArray(parsed.projects)) {
+            alert("That file is not a Barakah books export.");
+            return;
+          }
+          if (!confirm("Replace the books on this phone with this file?")) return;
+          const password = books.password;
+          books = {
+            transactions: parsed.transactions,
+            projects: parsed.projects,
+            settings: parsed.settings || books.settings,
+            notes: parsed.notes || {},
+            password,
+          };
+          save();
+          render();
+        } catch (e) {
+          alert("Could not read that file.");
+        }
+      };
+      const saveBtn = document.getElementById("f-save");
+      if (saveBtn) saveBtn.onclick = () => {
+        if (needUnlock()) return;
+        const sarN = Number(document.getElementById("f-sar").value || 0);
+        const pkrN = Number(document.getElementById("f-pkr").value || 0);
+        const desc = document.getElementById("f-desc").value.trim();
+        if (!desc) { alert("Write what happened."); return; }
+        if (!sarN && !pkrN) { alert("Enter an amount."); return; }
+        const rate = books.settings.defaultRate;
+        const amountSar = sarN || pkrN / rate;
+        const amountPkr = pkrN || sarN * rate;
+        const type = document.getElementById("f-type").value;
+        const neg = type === "expense" || type === "withdraw" || type === "loan" || type === "project_purchase" || type === "project_expense";
+        const fx = type === "fx_transfer";
+        books.transactions.push({
+          id: uid("tx"),
+          date: document.getElementById("f-date").value || today(),
+          type,
+          memberId: document.getElementById("f-member").value || null,
+          description: desc,
+          fund: document.getElementById("f-fund").value,
+          amountSar: fx ? -Math.abs(amountSar) : Math.abs(amountSar) * (neg ? -1 : 1),
+          amountPkr: fx ? Math.abs(amountPkr) : Math.abs(amountPkr) * (neg ? -1 : 1),
+          rate,
+          bank: type === "expense" || type === "revenue" || type.startsWith("project_") ? "pk" : "ksa",
+          bankHolderId: "ishtiaq",
+          category: type === "expense" ? "Expense" : "General",
+          projectId: document.getElementById("f-project").value || null,
+          createdAt: new Date().toISOString(),
+        });
+        save();
+        go("ledger");
+      };
+    }
+
+    function downloadJson(json) {
+      const blob = new Blob([json], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "Barakah-books.json";
+      a.click();
+    }
+
+    render();
+  </script>
+</body>
+</html>
